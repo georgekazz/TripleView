@@ -1,0 +1,5 @@
+select ?s ?p ?o
+FROM <http://stix/>
+WHERE {
+?s ?p ?o .
+}
