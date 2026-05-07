@@ -387,7 +387,6 @@ FROM <http://example.org/graph/mitre>
   }
 ];
 
-// ── THEME ─────────────────────────────────────────────────────
 const themeToggleBtn = document.getElementById('theme-toggle');
 const ihuLogo        = document.getElementById('ihu-logo');
 
@@ -403,11 +402,9 @@ themeToggleBtn.addEventListener('click', () => {
 });
 applyTheme(localStorage.getItem('sparql-theme') || 'dark');
 
-// ── STATE ─────────────────────────────────────────────────────
 let lastResults = null;
 let lastVars    = [];
 
-// ── ELEMENTS ──────────────────────────────────────────────────
 const editor          = document.getElementById('query-editor');
 const lineNumbers     = document.getElementById('line-numbers');
 const editorStatus    = document.getElementById('editor-status');
@@ -536,7 +533,6 @@ setTimeout(() => {
   if (first) first.dispatchEvent(new MouseEvent('mouseenter'));
 }, 0);
 
-// ── LINE NUMBERS ──────────────────────────────────────────────
 function updateLineNumbers() {
   const lines = editor.value.split('\n').length;
   lineNumbers.textContent = Array.from({length: lines}, (_, i) => i + 1).join('\n');
@@ -567,7 +563,6 @@ endpointUrl.addEventListener('input', () => {
   catch { endpointDisp.textContent = endpointUrl.value; }
 });
 
-// ── BUTTONS ───────────────────────────────────────────────────
 btnRun.addEventListener('click', runQuery);
 btnClear.addEventListener('click', () => { editor.value=''; updateLineNumbers(); updateStatus(); hideResults(); });
 btnFormat.addEventListener('click', () => {
@@ -579,7 +574,6 @@ btnFormat.addEventListener('click', () => {
 });
 btnExport.addEventListener('click', exportCSV);
 
-// ── RUN QUERY ─────────────────────────────────────────────────
 async function runQuery() {
   const query = editor.value.trim();
   if (!query) { showNotification('Query is empty.','error'); return; }
@@ -604,7 +598,6 @@ async function runQuery() {
   } finally { setLoading(false); }
 }
 
-// ── RENDER TABLE ──────────────────────────────────────────────
 function renderResults(data) {
   if (data.boolean !== undefined) {
     lastResults = null; lastVars = [];
@@ -675,7 +668,6 @@ function renderResults(data) {
   buildGraph(vars, rows);
 }
 
-// ── HELPERS ───────────────────────────────────────────────────
 function makeStateBox(type, title, desc, svgInner) {
   const box=document.createElement('div'); box.className='state-box';
   const ico=document.createElement('div'); ico.className=`state-icon ${type}`;
@@ -741,9 +733,8 @@ function exportCSV() {
   a.download='sparql-results.csv'; a.click();
 }
 
-// ═══════════════════════════════════════════════════════════════
-// ── D3 GRAPH ENGINE ───────────────────────────────────────────
-// ═══════════════════════════════════════════════════════════════
+
+// d3 library
 
 const graphPanel     = document.getElementById('graph-panel');
 const graphSvg       = document.getElementById('graph-svg');
@@ -952,7 +943,6 @@ function hideGraph(){
   if(simulation){simulation.stop();simulation=null;}
 }
 
-// ── INIT ──────────────────────────────────────────────────────
 updateLineNumbers();
 updateStatus();
 
