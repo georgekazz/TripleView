@@ -814,7 +814,7 @@ function buildGraph(vars,rows) {
   if (typeof d3==='undefined') return;
   graphPanel.classList.add('visible');
 
-  const MAX=200;
+  const MAX=400;
   if (rows.length>MAX) showNotification(`Graph limited to first ${MAX} rows.`,'info');
   const {nodes,links}=buildGraphData(vars,rows.slice(0,MAX));
   if (!nodes.length){hideGraph();return;}
