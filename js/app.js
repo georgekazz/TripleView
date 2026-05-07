@@ -957,4 +957,4 @@ updateLineNumbers();
 updateStatus();
 
 const copyEl = document.querySelector('.footer-copy');
-if (copyEl) copyEl.innerHTML = `&copy; ${new Date().getFullYear()} TripleView Studio. All rights reserved.`;
+if (copyEl) copyEl.innerHTML = `&copy; ${new Date().getFullYear()} TripleView Studio. Developed by International Hellenic University.`;
