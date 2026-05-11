@@ -1,4 +1,14 @@
-// EXAMPLES DATA
+const PFX = `PREFIX action:   <https://ontology.unifiedcyberontology.org/uco/action/>
+PREFIX analysis: <https://ontology.unifiedcyberontology.org/uco/analysis/>
+PREFIX core:     <https://ontology.unifiedcyberontology.org/uco/core/>
+PREFIX identity: <https://ontology.unifiedcyberontology.org/uco/identity/>
+PREFIX marking:  <https://ontology.unifiedcyberontology.org/uco/marking/>
+PREFIX pattern:  <https://ontology.unifiedcyberontology.org/uco/pattern/>
+PREFIX tool:     <https://ontology.unifiedcyberontology.org/uco/tool/>
+PREFIX ex:       <http://example.org/stix-uco/>
+PREFIX xsd:      <http://www.w3.org/2001/XMLSchema#>`;
+
+// EXAMPLES DATA 
 const EXAMPLES = [
   {
     group: 'Graph Exploration',
@@ -6,7 +16,8 @@ const EXAMPLES = [
       {
         label: 'List All Named Graphs',
         tag: 'SELECT',
-        query: `SELECT DISTINCT ?graph (COUNT(*) AS ?triples)
+        query:
+`SELECT DISTINCT ?graph (COUNT(*) AS ?triples)
 WHERE {
   GRAPH ?graph { ?s ?p ?o }
 }
@@ -16,7 +27,8 @@ ORDER BY DESC(?triples)`
       {
         label: 'Count Classes per Graph',
         tag: 'SELECT',
-        query: `SELECT DISTINCT ?class (COUNT(?s) AS ?count)
+        query:
+`SELECT DISTINCT ?class (COUNT(?s) AS ?count)
 FROM <http://stix/>
 WHERE {
   ?s a ?class .
@@ -27,7 +39,8 @@ ORDER BY DESC(?count)`
       {
         label: 'All Predicates in MITRE Graph',
         tag: 'SELECT',
-        query: `SELECT DISTINCT (STR(?predicate) AS ?fullPredicate) (COUNT(*) AS ?usage)
+        query:
+`SELECT DISTINCT (STR(?predicate) AS ?fullPredicate) (COUNT(*) AS ?usage)
 FROM <http://example.org/graph/mitre>
 WHERE {
   ?s ?predicate ?o .
@@ -39,35 +52,49 @@ LIMIT 30`
       {
         label: 'Describe a Single Node',
         tag: 'SELECT',
-        query: `SELECT (STR(?predicate) AS ?fullPredicate) (STR(?value) AS ?val)
+        query:
+`SELECT (STR(?predicate) AS ?fullPredicate) (STR(?value) AS ?val)
 FROM <http://stix/>
 WHERE {
   <http://example.org/stix-uco/attack-pattern--19da6e1c-71ab-4c2f-886d-d620d09d3b5a>
       ?predicate ?value .
 }`
+      },
+      {
+        label: 'Statistics per Graph',
+        tag: 'SELECT',
+        query:
+`SELECT ?graph (COUNT(?entity) AS ?totalEntities)
+WHERE {
+  GRAPH ?graph {
+    ?entity a ?type .
+  }
+}
+GROUP BY ?graph
+ORDER BY DESC(?totalEntities)`
       }
     ]
   },
+
   {
     group: 'ATT&CK Techniques',
     items: [
       {
         label: 'All ATT&CK Techniques',
         tag: 'SELECT',
-        query: `PREFIX uco-action: <https://ontology.unifiedcyberontology.org/uco/action/>
-PREFIX uco-core:   <https://ontology.unifiedcyberontology.org/uco/core/>
-PREFIX stix-uco:   <http://example.org/stix-uco/>
+        query:
+`${PFX}
 
 SELECT DISTINCT ?technique ?name ?attackId ?refURL ?created
 FROM <http://example.org/graph/mitre>
 WHERE {
-  ?technique a uco-action:ActionPattern ;
-             uco-core:name ?name ;
-             uco-core:objectCreatedTime ?created ;
-             uco-core:externalReference ?ref .
+  ?technique a action:ActionPattern ;
+             core:name ?name ;
+             core:objectCreatedTime ?created ;
+             core:externalReference ?ref .
 
-  ?ref uco-core:externalIdentifier ?attackId ;
-       uco-core:referenceURL ?refURL .
+  ?ref core:externalIdentifier ?attackId ;
+       core:referenceURL ?refURL .
 
   FILTER (STRSTARTS(STR(?attackId), "T"))
   FILTER (!CONTAINS(?name, " - "))
@@ -77,35 +104,19 @@ ORDER BY ?attackId
 LIMIT 100`
       },
       {
-        label: 'Count Techniques by Type',
-        tag: 'SELECT',
-        query: `PREFIX uco-action:  <https://ontology.unifiedcyberontology.org/uco/action/>
-PREFIX uco-core:    <https://ontology.unifiedcyberontology.org/uco/core/>
-PREFIX stix-uco:    <http://example.org/stix-uco/>
-
-SELECT ?ontologyClass (COUNT(DISTINCT ?technique) AS ?count)
-FROM <http://example.org/graph/mitre>
-WHERE {
-  ?technique a uco-action:ActionPattern ;
-             stix-uco:attackOntologyClass ?ontologyClass .
-}
-GROUP BY ?ontologyClass
-ORDER BY DESC(?count)`
-      },
-      {
         label: 'Search Technique by Name',
         tag: 'SELECT',
-        query: `PREFIX uco-action: <https://ontology.unifiedcyberontology.org/uco/action/>
-PREFIX uco-core:   <https://ontology.unifiedcyberontology.org/uco/core/>
+        query:
+`${PFX}
 
 SELECT DISTINCT ?technique ?name ?attackId
 FROM <http://example.org/graph/mitre>
 WHERE {
-  ?technique a uco-action:ActionPattern ;
-             uco-core:name ?name ;
-             uco-core:externalReference ?ref .
+  ?technique a action:ActionPattern ;
+             core:name ?name ;
+             core:externalReference ?ref .
 
-  ?ref uco-core:externalIdentifier ?attackId .
+  ?ref core:externalIdentifier ?attackId .
 
   FILTER (CONTAINS(LCASE(?name), "phishing"))
   FILTER (STRSTARTS(STR(?attackId), "T"))
@@ -113,70 +124,234 @@ WHERE {
 ORDER BY ?attackId`
       },
       {
+        label: 'Count Techniques by Type',
+        tag: 'SELECT',
+        query:
+`${PFX}
+
+SELECT ?ontologyClass (COUNT(DISTINCT ?technique) AS ?count)
+FROM <http://example.org/graph/mitre>
+WHERE {
+  ?technique a action:ActionPattern ;
+             ex:attackOntologyClass ?ontologyClass .
+}
+GROUP BY ?ontologyClass
+ORDER BY DESC(?count)`
+      },
+      {
+        label: 'Subtechniques Only',
+        tag: 'SELECT',
+        query:
+`${PFX}
+
+SELECT DISTINCT ?attackId ?name ?description
+FROM <http://example.org/graph/mitre>
+WHERE {
+  ?technique a action:ActionPattern ;
+             core:externalReference ?ref ;
+             core:name ?name .
+
+  ?ref core:externalIdentifier ?attackId .
+
+  FILTER (CONTAINS(STR(?attackId), "."))
+  FILTER (!CONTAINS(?name, " - "))
+  OPTIONAL { ?technique core:description ?description }
+}
+ORDER BY ?attackId`
+      },
+      {
         label: 'Techniques Modified After 2020',
         tag: 'SELECT',
-        query: `PREFIX uco-action: <https://ontology.unifiedcyberontology.org/uco/action/>
-PREFIX uco-core:   <https://ontology.unifiedcyberontology.org/uco/core/>
+        query:
+`${PFX}
 
 SELECT DISTINCT ?name ?attackId ?modified
 FROM <http://example.org/graph/mitre>
 WHERE {
-  ?technique a uco-action:ActionPattern ;
-             uco-core:name ?name ;
-             uco-core:modifiedTime ?modified ;
-             uco-core:externalReference ?ref .
+  ?technique a action:ActionPattern ;
+             core:name ?name ;
+             core:modifiedTime ?modified ;
+             core:externalReference ?ref .
 
-  ?ref uco-core:externalIdentifier ?attackId .
+  ?ref core:externalIdentifier ?attackId .
 
   FILTER (STRSTARTS(STR(?attackId), "T"))
   FILTER (!CONTAINS(?name, " - "))
-  FILTER (?modified > "2020-01-01T00:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>)
+  FILTER (?modified > "2020-01-01T00:00:00Z"^^xsd:dateTime)
 }
 ORDER BY DESC(?modified)
 LIMIT 50`
+      },
+      {
+        label: 'Top 10 Techniques by Relations',
+        tag: 'SELECT',
+        query:
+`${PFX}
+
+SELECT ?name (COUNT(?rel) AS ?relCount)
+FROM <http://example.org/graph/mitre>
+WHERE {
+  ?rel a core:Relationship ;
+       core:target ?technique .
+  ?technique a action:ActionPattern ;
+             core:name ?name .
+}
+GROUP BY ?name
+ORDER BY DESC(?relCount)
+LIMIT 10`
       }
     ]
   },
+
   {
-    group: 'STIX Relationships',
+    group: 'Relationships',
     items: [
       {
         label: 'All Relationship Types',
         tag: 'SELECT',
-        query: `PREFIX uco-core: <https://ontology.unifiedcyberontology.org/uco/core/>
-PREFIX stix-uco: <http://example.org/stix-uco/>
+        query:
+`${PFX}
 
-SELECT DISTINCT ?relType (COUNT(*) AS ?count)
-FROM <http://stix/>
+SELECT DISTINCT ?kindOfRelationship (COUNT(*) AS ?count)
+FROM <http://example.org/graph/mitre>
 WHERE {
-  ?rel a uco-core:Relationship ;
-       stix-uco:relationshipType ?relType .
+  ?rel a core:Relationship ;
+       core:kindOfRelationship ?kindOfRelationship .
 }
-GROUP BY ?relType
+GROUP BY ?kindOfRelationship
 ORDER BY DESC(?count)`
+      },
+      {
+        label: 'Malware / Tool → Technique (uses)',
+        tag: 'SELECT',
+        query:
+`${PFX}
+
+SELECT DISTINCT ?sourceName ?targetName ?description
+FROM <http://example.org/graph/mitre>
+WHERE {
+  ?rel a core:Relationship ;
+       core:kindOfRelationship "uses" ;
+       core:source ?source ;
+       core:target ?target .
+
+  OPTIONAL { ?source core:name ?sourceName }
+  OPTIONAL { ?target core:name ?targetName }
+  OPTIONAL { ?rel core:description ?description }
+
+  FILTER (!CONTAINS(COALESCE(?sourceName, ""), " - "))
+  FILTER (!CONTAINS(COALESCE(?sourceName, ""), "@"))
+}
+ORDER BY ?sourceName
+LIMIT 100`
+      },
+      {
+        label: 'Mitigations → Techniques',
+        tag: 'SELECT',
+        query:
+`${PFX}
+
+SELECT DISTINCT ?mitigationName ?techniqueName ?description
+FROM <http://example.org/graph/mitre>
+WHERE {
+  ?rel a core:Relationship ;
+       core:kindOfRelationship "mitigates" ;
+       core:source ?mitigation ;
+       core:target ?technique .
+
+  OPTIONAL { ?mitigation core:name ?mitigationName }
+  OPTIONAL { ?technique  core:name ?techniqueName  }
+  OPTIONAL { ?rel core:description ?description }
+}
+ORDER BY ?mitigationName
+LIMIT 100`
+      },
+      {
+        label: 'Detection: Data Sources → Techniques',
+        tag: 'SELECT',
+        query:
+`${PFX}
+
+SELECT DISTINCT ?sourceName ?targetName
+FROM <http://example.org/graph/mitre>
+WHERE {
+  ?rel a core:Relationship ;
+       core:kindOfRelationship "detects" ;
+       core:source ?source ;
+       core:target ?target .
+
+  OPTIONAL { ?source core:name ?sourceName }
+  OPTIONAL { ?target core:name ?targetName }
+}
+ORDER BY ?sourceName
+LIMIT 100`
+      },
+      {
+        label: 'Sub-technique → Parent Technique',
+        tag: 'SELECT',
+        query:
+`${PFX}
+
+SELECT DISTINCT ?subName ?parentName
+FROM <http://example.org/graph/mitre>
+WHERE {
+  ?rel a core:Relationship ;
+       core:kindOfRelationship "subtechnique-of" ;
+       core:source ?sub ;
+       core:target ?parent .
+
+  OPTIONAL { ?sub    core:name ?subName    }
+  OPTIONAL { ?parent core:name ?parentName }
+}
+ORDER BY ?parentName ?subName
+LIMIT 100`
+      },
+      {
+        label: 'Campaigns Attributed to Groups',
+        tag: 'SELECT',
+        query:
+`${PFX}
+
+SELECT DISTINCT ?campaign ?group
+FROM <http://example.org/graph/mitre>
+WHERE {
+  ?rel a core:Relationship ;
+       core:kindOfRelationship "attributed-to" ;
+       core:source ?source ;
+       core:target ?target .
+
+  OPTIONAL { ?source core:name ?campaign }
+  OPTIONAL { ?target core:name ?group    }
+
+  FILTER (!CONTAINS(COALESCE(?campaign, ""), "@"))
+  FILTER (!CONTAINS(COALESCE(?group,    ""), "@"))
+  FILTER (!CONTAINS(COALESCE(?campaign, ""), ","))
+  FILTER (!CONTAINS(COALESCE(?group,    ""), ","))
+}
+ORDER BY ?campaign`
       },
       {
         label: 'Techniques Used in NCSC Bundles',
         tag: 'SELECT',
-        query: `PREFIX uco-action:  <https://ontology.unifiedcyberontology.org/uco/action/>
-PREFIX uco-core:    <https://ontology.unifiedcyberontology.org/uco/core/>
-PREFIX stix-uco:    <http://example.org/stix-uco/>
+        query:
+`${PFX}
 
 SELECT DISTINCT ?techniqueName ?attackId
 FROM <http://example.org/graph/mitre>
 FROM <http://ncsc/>
 WHERE {
-  ?technique a uco-action:ActionPattern ;
-             uco-core:name ?techniqueName ;
-             uco-core:externalReference ?ref .
+  ?technique a action:ActionPattern ;
+             core:name ?techniqueName ;
+             core:externalReference ?ref .
 
-  ?ref uco-core:externalIdentifier ?attackId .
+  ?ref core:externalIdentifier ?attackId .
+
   FILTER (STRSTARTS(STR(?attackId), "T"))
   FILTER (!CONTAINS(?techniqueName, " - "))
   FILTER (!CONTAINS(?techniqueName, "@"))
 
-  ?rel a uco-core:Relationship ;
-       uco-core:source ?technique .
+  ?rel a core:Relationship ;
+       core:source ?technique .
 }
 ORDER BY ?attackId
 LIMIT 100`
@@ -184,36 +359,40 @@ LIMIT 100`
       {
         label: 'Relationships with Source & Target',
         tag: 'SELECT',
-        query: `PREFIX uco-core:  <https://ontology.unifiedcyberontology.org/uco/core/>
-PREFIX stix-uco:  <http://example.org/stix-uco/>
+        query:
+`${PFX}
 
-SELECT ?rel ?relType ?source ?target
+SELECT ?rel ?relType ?sourceName ?targetName
 FROM <http://stix/>
 WHERE {
-  ?rel a uco-core:Relationship ;
-       uco-core:source ?source ;
-       uco-core:target ?target .
-  OPTIONAL { ?rel stix-uco:relationshipType ?relType }
+  ?rel a core:Relationship ;
+       core:source ?source ;
+       core:target ?target .
+
+  OPTIONAL { ?rel    core:kindOfRelationship ?relType    }
+  OPTIONAL { ?source core:name               ?sourceName }
+  OPTIONAL { ?target core:name               ?targetName }
 }
 LIMIT 50`
       }
     ]
   },
+
   {
     group: 'STIX Objects',
     items: [
       {
         label: 'All Malicious Tools',
         tag: 'SELECT',
-        query: `PREFIX uco-tool:  <https://ontology.unifiedcyberontology.org/uco/tool/>
-PREFIX uco-core:  <https://ontology.unifiedcyberontology.org/uco/core/>
+        query:
+`${PFX}
 
 SELECT ?tool ?name ?created
 FROM <http://stix/>
 WHERE {
-  ?tool a uco-tool:MaliciousTool ;
-        uco-core:name ?name ;
-        uco-core:objectCreatedTime ?created .
+  ?tool a tool:MaliciousTool ;
+        core:name ?name ;
+        core:objectCreatedTime ?created .
 }
 ORDER BY ?name
 LIMIT 50`
@@ -221,15 +400,15 @@ LIMIT 50`
       {
         label: 'All Defensive Tools',
         tag: 'SELECT',
-        query: `PREFIX uco-tool:  <https://ontology.unifiedcyberontology.org/uco/tool/>
-PREFIX uco-core:  <https://ontology.unifiedcyberontology.org/uco/core/>
+        query:
+`${PFX}
 
 SELECT ?tool ?name ?created
 FROM <http://stix/>
 WHERE {
-  ?tool a uco-tool:DefensiveTool ;
-        uco-core:name ?name ;
-        uco-core:objectCreatedTime ?created .
+  ?tool a tool:DefensiveTool ;
+        core:name ?name ;
+        core:objectCreatedTime ?created .
 }
 ORDER BY ?name
 LIMIT 50`
@@ -237,53 +416,69 @@ LIMIT 50`
       {
         label: 'Organizations & Identities',
         tag: 'SELECT',
-        query: `PREFIX uco-identity: <https://ontology.unifiedcyberontology.org/uco/identity/>
-PREFIX uco-core:     <https://ontology.unifiedcyberontology.org/uco/core/>
+        query:
+`${PFX}
 
 SELECT ?entity ?type ?name
 FROM <http://stix/>
 WHERE {
-  { ?entity a uco-identity:Organization . BIND("Organization" AS ?type) }
+  { ?entity a identity:Organization . BIND("Organization" AS ?type) }
   UNION
-  { ?entity a uco-identity:Identity .     BIND("Identity"     AS ?type) }
-  ?entity uco-core:name ?name .
+  { ?entity a identity:Identity .     BIND("Identity"     AS ?type) }
+  ?entity core:name ?name .
 }
 ORDER BY ?type ?name`
       },
       {
         label: 'Data Sources & Components',
         tag: 'SELECT',
-        query: `PREFIX stix-uco: <http://example.org/stix-uco/>
-PREFIX uco-core: <https://ontology.unifiedcyberontology.org/uco/core/>
+        query:
+`${PFX}
 
 SELECT ?entity ?type ?name
 FROM <http://stix/>
 WHERE {
-  { ?entity a stix-uco:DataSource .    BIND("DataSource"    AS ?type) }
+  { ?entity a ex:DataSource .    BIND("DataSource"    AS ?type) }
   UNION
-  { ?entity a stix-uco:DataComponent . BIND("DataComponent" AS ?type) }
-  OPTIONAL { ?entity uco-core:name ?name }
+  { ?entity a ex:DataComponent . BIND("DataComponent" AS ?type) }
+  OPTIONAL { ?entity core:name ?name }
 }
 ORDER BY ?type ?name
 LIMIT 50`
+      },
+      {
+        label: 'Entities Count by Type',
+        tag: 'SELECT',
+        query:
+`${PFX}
+
+SELECT ?type (COUNT(?entity) AS ?count)
+FROM <http://example.org/graph/mitre>
+WHERE {
+  ?entity a ?type .
+}
+GROUP BY ?type
+ORDER BY DESC(?count)`
       }
     ]
   },
+
   {
     group: 'External References',
     items: [
       {
         label: 'All External References',
         tag: 'SELECT',
-        query: `PREFIX uco-core: <https://ontology.unifiedcyberontology.org/uco/core/>
+        query:
+`${PFX}
 
 SELECT ?identifier ?sourceName ?url
 FROM <http://stix/>
 WHERE {
-  ?ref a uco-core:ExternalReference ;
-       uco-core:externalIdentifier ?identifier ;
-       uco-core:name ?sourceName .
-  OPTIONAL { ?ref uco-core:referenceURL ?url }
+  ?ref a core:ExternalReference ;
+       core:externalIdentifier ?identifier ;
+       core:name ?sourceName .
+  OPTIONAL { ?ref core:referenceURL ?url }
 }
 ORDER BY ?identifier
 LIMIT 100`
@@ -291,14 +486,15 @@ LIMIT 100`
       {
         label: 'MITRE ATT&CK References Only',
         tag: 'SELECT',
-        query: `PREFIX uco-core: <https://ontology.unifiedcyberontology.org/uco/core/>
+        query:
+`${PFX}
 
 SELECT ?identifier ?url
 FROM <http://example.org/graph/mitre>
 WHERE {
-  ?ref a uco-core:ExternalReference ;
-       uco-core:externalIdentifier ?identifier ;
-       uco-core:referenceURL ?url .
+  ?ref a core:ExternalReference ;
+       core:externalIdentifier ?identifier ;
+       core:referenceURL ?url .
   FILTER (STRSTARTS(STR(?identifier), "T"))
 }
 ORDER BY ?identifier
@@ -306,20 +502,22 @@ LIMIT 100`
       }
     ]
   },
+
   {
     group: 'Bundles & Groupings',
     items: [
       {
         label: 'All Bundles',
         tag: 'SELECT',
-        query: `PREFIX uco-core: <https://ontology.unifiedcyberontology.org/uco/core/>
+        query:
+`${PFX}
 
 SELECT ?bundle ?name (COUNT(?obj) AS ?objectCount)
 FROM <http://stix/>
 WHERE {
-  ?bundle a uco-core:Bundle .
-  OPTIONAL { ?bundle uco-core:name ?name }
-  OPTIONAL { ?bundle uco-core:object ?obj }
+  ?bundle a core:Bundle .
+  OPTIONAL { ?bundle core:name   ?name }
+  OPTIONAL { ?bundle core:object ?obj  }
 }
 GROUP BY ?bundle ?name
 ORDER BY DESC(?objectCount)`
@@ -327,13 +525,14 @@ ORDER BY DESC(?objectCount)`
       {
         label: 'Objects Inside a Bundle',
         tag: 'SELECT',
-        query: `PREFIX uco-core: <https://ontology.unifiedcyberontology.org/uco/core/>
+        query:
+`${PFX}
 
 SELECT ?object (STR(?type) AS ?objectType)
 FROM <http://stix/>
 WHERE {
   <http://example.org/stix-uco/bundle--b0b9c258-840b-445b-b805-e9f5fd31ed28>
-      uco-core:object ?object .
+      core:object ?object .
   OPTIONAL { ?object a ?type }
 }
 LIMIT 50`
@@ -341,46 +540,187 @@ LIMIT 50`
       {
         label: 'All Groupings',
         tag: 'SELECT',
-        query: `PREFIX uco-core: <https://ontology.unifiedcyberontology.org/uco/core/>
+        query:
+`${PFX}
 
 SELECT ?grouping ?name ?context
 FROM <http://stix/>
 WHERE {
-  ?grouping a uco-core:Grouping .
-  OPTIONAL { ?grouping uco-core:name ?name }
-  OPTIONAL { ?grouping <http://example.org/stix-uco/context> ?context }
+  ?grouping a core:Grouping .
+  OPTIONAL { ?grouping core:name    ?name    }
+  OPTIONAL { ?grouping ex:context   ?context }
 }
 ORDER BY ?name
 LIMIT 50`
       }
     ]
   },
+
+  {
+    group: 'Filtering',
+    items: [
+      {
+        label: 'Search by Keyword in Description',
+        tag: 'SELECT',
+        query:
+`${PFX}
+
+SELECT ?entity ?name ?description
+FROM <http://example.org/graph/mitre>
+WHERE {
+  ?entity core:name ?name ;
+          core:description ?description .
+  FILTER (CONTAINS(LCASE(?description), "powershell"))
+}
+LIMIT 50`
+      },
+      {
+        label: 'Filter by Modified Date',
+        tag: 'SELECT',
+        query:
+`${PFX}
+
+SELECT ?entity ?name ?modifiedTime
+FROM <http://example.org/graph/mitre>
+WHERE {
+  ?entity core:name         ?name ;
+          core:modifiedTime ?modifiedTime .
+  FILTER (?modifiedTime > "2024-01-01T00:00:00"^^xsd:dateTime)
+}
+ORDER BY DESC(?modifiedTime)
+LIMIT 50`
+      },
+      {
+        label: 'Entities Created by Identity',
+        tag: 'SELECT',
+        query:
+`${PFX}
+
+SELECT ?entity ?name ?type
+FROM <http://ncsc/>
+WHERE {
+  ?entity core:createdBy <http://example.org/stix-uco/identity--c78cb6e5-0c4b-4611-8297-d1b8b55e40b5> ;
+          core:name ?name ;
+          a ?type .
+}
+ORDER BY ?type ?name`
+      }
+    ]
+  },
+
+  {
+    group: 'Cross-Graph',
+    items: [
+      {
+        label: 'Common Techniques: MITRE & NCSC',
+        tag: 'SELECT',
+        query:
+`${PFX}
+
+SELECT DISTINCT ?attackId ?name
+WHERE {
+  {
+    GRAPH <http://example.org/graph/mitre> {
+      ?t1 core:externalReference ?ref1 .
+      ?ref1 core:externalIdentifier ?attackId .
+      ?t1 core:name ?name .
+    }
+  }
+  {
+    GRAPH <http://ncsc/> {
+      ?t2 core:externalReference ?ref2 .
+      ?ref2 core:externalIdentifier ?attackId .
+    }
+  }
+}
+ORDER BY ?attackId`
+      },
+      {
+        label: 'All Malicious Tools Across Graphs',
+        tag: 'SELECT',
+        query:
+`${PFX}
+
+SELECT ?graph ?tool ?name
+WHERE {
+  GRAPH ?graph {
+    ?tool a tool:MaliciousTool ;
+          core:name ?name .
+  }
+}
+ORDER BY ?graph ?name`
+      },
+      {
+        label: 'Techniques Used in NCSC + MITRE',
+        tag: 'SELECT',
+        query:
+`${PFX}
+
+SELECT DISTINCT ?techniqueName ?attackId
+FROM <http://example.org/graph/mitre>
+FROM <http://ncsc/>
+WHERE {
+  ?technique a action:ActionPattern ;
+             core:name ?techniqueName ;
+             core:externalReference ?ref .
+
+  ?ref core:externalIdentifier ?attackId .
+  FILTER (STRSTARTS(STR(?attackId), "T"))
+  FILTER (!CONTAINS(?techniqueName, " - "))
+  FILTER (!CONTAINS(?techniqueName, "@"))
+
+  ?rel a core:Relationship ;
+       core:source ?technique .
+}
+ORDER BY ?attackId
+LIMIT 100`
+      }
+    ]
+  },
+
   {
     group: 'ASK',
     items: [
       {
         label: 'MITRE Graph Has Data',
         tag: 'ASK',
-        query: `ASK {
+        query:
+`ASK {
   GRAPH <http://example.org/graph/mitre> { ?s ?p ?o }
 }`
       },
       {
         label: 'STIX Graph Has Data',
         tag: 'ASK',
-        query: `ASK {
+        query:
+`ASK {
   GRAPH <http://stix/> { ?s ?p ?o }
 }`
       },
       {
         label: 'Technique T1059 Exists',
         tag: 'ASK',
-        query: `PREFIX uco-core: <https://ontology.unifiedcyberontology.org/uco/core/>
+        query:
+`${PFX}
 
 ASK
 FROM <http://example.org/graph/mitre>
 {
-  ?ref uco-core:externalIdentifier "T1059" .
+  ?ref core:externalIdentifier "T1059" .
+}`
+      },
+      {
+        label: 'Any Malware Uses Phishing',
+        tag: 'ASK',
+        query:
+`${PFX}
+
+ASK
+FROM <http://example.org/graph/mitre>
+{
+  ?technique a action:ActionPattern ;
+             core:name ?name .
+  FILTER (CONTAINS(LCASE(?name), "phishing"))
 }`
       }
     ]
@@ -405,6 +745,7 @@ applyTheme(localStorage.getItem('sparql-theme') || 'dark');
 let lastResults = null;
 let lastVars    = [];
 
+// ELEMENTS 
 const editor          = document.getElementById('query-editor');
 const lineNumbers     = document.getElementById('line-numbers');
 const editorStatus    = document.getElementById('editor-status');
@@ -432,7 +773,6 @@ const previewCode     = document.getElementById('preview-code');
 const previewTitle    = document.getElementById('preview-title');
 const previewUseBtn   = document.getElementById('preview-use-btn');
 
-// ── EXAMPLES DROPDOWN ─────────────────────────────────────────
 let activeExample = null;
 
 function tagClass(tag) {
@@ -444,7 +784,7 @@ function highlightQuery(query) {
     'ORDER BY','GROUP BY','HAVING','PREFIX','BASE','GRAPH','SERVICE','BIND','VALUES',
     'MINUS','REDUCED','FROM','NAMED','CONSTRUCT','ASK','DESCRIBE','AS','COUNT','SUM',
     'AVG','MIN','MAX','STRSTARTS','CONTAINS','LCASE','UCASE','LANG','STR','CONCAT',
-    'COALESCE','IF','BOUND','EXISTS','NOT EXISTS','REGEX'];
+    'COALESCE','IF','BOUND','EXISTS','NOT EXISTS','REGEX','STRENDS'];
   let h = query.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   h = h.replace(/(#[^\n]*)/g,'<span class="cmt">$1</span>');
   h = h.replace(/("(?:[^"\\]|\\.)*")/g,'<span class="str">$1</span>');
@@ -499,6 +839,22 @@ function useExample(item) {
 function openDropdown() {
   examplesDropdown.classList.add('open');
   btnExamples.classList.add('open');
+  const rect = btnExamples.getBoundingClientRect();
+  const ddW  = Math.min(820, window.innerWidth * 0.9);
+  let left   = rect.left;
+  if (left + ddW > window.innerWidth - 12) left = window.innerWidth - ddW - 12;
+  if (left < 8) left = 8;
+  const spaceBelow = window.innerHeight - rect.bottom - 12;
+  const spaceAbove = rect.top - 12;
+  const ddH = Math.min(520, window.innerHeight * 0.8);
+  if (spaceBelow >= ddH || spaceBelow >= spaceAbove) {
+    examplesDropdown.style.top    = (rect.bottom + 8) + 'px';
+    examplesDropdown.style.bottom = 'auto';
+  } else {
+    examplesDropdown.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
+    examplesDropdown.style.top    = 'auto';
+  }
+  examplesDropdown.style.left = left + 'px';
   examplesSearch.focus();
   if (!activeExample) {
     const first = examplesList.querySelector('.dropdown-item');
@@ -680,19 +1036,19 @@ function makeStateBox(type, title, desc, svgInner) {
 
 function shortenUri(uri) {
   const prefixes = {
-    'https://ontology.unifiedcyberontology.org/uco/action/':'uco-action:',
-    'https://ontology.unifiedcyberontology.org/uco/core/':'uco-core:',
-    'https://ontology.unifiedcyberontology.org/uco/tool/':'uco-tool:',
-    'https://ontology.unifiedcyberontology.org/uco/identity/':'uco-identity:',
-    'https://ontology.unifiedcyberontology.org/uco/marking/':'uco-marking:',
-    'https://ontology.unifiedcyberontology.org/uco/analysis/':'uco-analysis:',
-    'http://example.org/stix-uco/':'stix-uco:',
-    'http://example.org/ontology#':'ex:',
-    'http://www.w3.org/1999/02/22-rdf-syntax-ns#':'rdf:',
-    'http://www.w3.org/2000/01/rdf-schema#':'rdfs:',
-    'http://www.w3.org/2002/07/owl#':'owl:',
-    'http://www.w3.org/2001/XMLSchema#':'xsd:',
-    'http://schema.org/':'schema:',
+    'https://ontology.unifiedcyberontology.org/uco/action/':   'action:',
+    'https://ontology.unifiedcyberontology.org/uco/core/':     'core:',
+    'https://ontology.unifiedcyberontology.org/uco/tool/':     'tool:',
+    'https://ontology.unifiedcyberontology.org/uco/identity/': 'identity:',
+    'https://ontology.unifiedcyberontology.org/uco/marking/':  'marking:',
+    'https://ontology.unifiedcyberontology.org/uco/analysis/': 'analysis:',
+    'https://ontology.unifiedcyberontology.org/uco/pattern/':  'pattern:',
+    'http://example.org/stix-uco/':                            'ex:',
+    'http://www.w3.org/1999/02/22-rdf-syntax-ns#':             'rdf:',
+    'http://www.w3.org/2000/01/rdf-schema#':                   'rdfs:',
+    'http://www.w3.org/2002/07/owl#':                          'owl:',
+    'http://www.w3.org/2001/XMLSchema#':                       'xsd:',
+    'http://schema.org/':                                      'schema:',
   };
   for (const [ns,prefix] of Object.entries(prefixes)) if (uri.startsWith(ns)) return prefix+uri.slice(ns.length);
   if (uri.length>60) {
@@ -732,9 +1088,6 @@ function exportCSV() {
   a.href=URL.createObjectURL(new Blob([[lastVars.join(','),...rows].join('\n')],{type:'text/csv'}));
   a.download='sparql-results.csv'; a.click();
 }
-
-
-// d3 library
 
 const graphPanel     = document.getElementById('graph-panel');
 const graphSvg       = document.getElementById('graph-svg');
@@ -794,7 +1147,7 @@ function buildGraphData(vars, rows) {
     rows.forEach((row,i)=>{
       const rowNodes=[];
       vars.forEach(v=>{const b=row[v];if(!b)return;const n=getOrCreate(b,`${b.type}::${b.value}`);if(n)rowNodes.push(n);});
-      for(let i=0;i<rowNodes.length-1;i++){rowNodes[i].degree++;rowNodes[i+1].degree++;links.push({source:rowNodes[i].id,target:rowNodes[i+1].id,label:`row${i+1}`,fullPred:''});}
+      for(let j=0;j<rowNodes.length-1;j++){rowNodes[j].degree++;rowNodes[j+1].degree++;links.push({source:rowNodes[j].id,target:rowNodes[j+1].id,label:`row${i+1}`,fullPred:''});}
     });
   }
 
@@ -805,7 +1158,7 @@ function buildGraph(vars,rows) {
   if (typeof d3==='undefined') return;
   graphPanel.classList.add('visible');
 
-  const MAX=400;
+  const MAX=200;
   if (rows.length>MAX) showNotification(`Graph limited to first ${MAX} rows.`,'info');
   const {nodes,links}=buildGraphData(vars,rows.slice(0,MAX));
   if (!nodes.length){hideGraph();return;}
@@ -947,4 +1300,4 @@ updateLineNumbers();
 updateStatus();
 
 const copyEl = document.querySelector('.footer-copy');
-if (copyEl) copyEl.innerHTML = `&copy; ${new Date().getFullYear()} TripleView Studio. Developed by International Hellenic University.`;
+if (copyEl) copyEl.innerHTML = `&copy; ${new Date().getFullYear()} TripleView Studio, developed by International Hellenic University`;
