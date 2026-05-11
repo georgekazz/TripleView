@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a1d28"/>
+      <stop offset="100%" stop-color="#13151c"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5b8af5"/>
+      <stop offset="100%" stop-color="#b48ef5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect width="32" height="32" rx="7" fill="url(#bg)"/>
+
+  <!-- Edges of the knowledge graph -->
+  <line x1="16" y1="7"  x2="25" y2="14" stroke="#2e3347" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="16" y1="7"  x2="7"  y2="14" stroke="#2e3347" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="25" y1="14" x2="22" y2="25" stroke="#2e3347" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="7"  y1="14" x2="10" y2="25" stroke="#2e3347" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="10" y1="25" x2="22" y2="25" stroke="#2e3347" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="7"  y1="14" x2="25" y2="14" stroke="#2e3347" stroke-width="1" stroke-linecap="round" stroke-dasharray="2 2"/>
+
+  <!-- Nodes -->
+  <!-- Top center — primary accent -->
+  <circle cx="16" cy="7"  r="3.5" fill="url(#accent)" />
+
+  <!-- Left mid -->
+  <circle cx="7"  cy="14" r="2.8" fill="#5b8af5" opacity="0.85"/>
+
+  <!-- Right mid -->
+  <circle cx="25" cy="14" r="2.8" fill="#5b8af5" opacity="0.85"/>
+
+  <!-- Bottom left -->
+  <circle cx="10" cy="25" r="2.4" fill="#b48ef5" opacity="0.9"/>
+
+  <!-- Bottom right -->
+  <circle cx="22" cy="25" r="2.4" fill="#b48ef5" opacity="0.9"/>
+</svg>
