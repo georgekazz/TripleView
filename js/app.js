@@ -793,9 +793,11 @@ function highlightQuery(query) {
 }
 
 const endpointInput = document.getElementById('endpoint-url');
-if (endpointInput && !endpointInput.value) {
-  endpointInput.value = window.location.origin + '/TripleViewStudio/proxy.php';
-  endpointDisp.textContent = window.location.host + '/TripleViewStudio/proxy.php';
+if (endpointInput) {
+  const pagePath = window.location.pathname.replace(/\/[^/]*$/, '');
+  const autoUrl  = window.location.origin + pagePath + '/proxy.php';
+  endpointInput.value       = autoUrl;
+  endpointDisp.textContent  = window.location.host + pagePath + '/proxy.php';
 }
 
 function renderExamplesList(filter = '') {

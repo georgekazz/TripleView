@@ -62,8 +62,10 @@
     <main>
       <div class="config-row">
         <label>Endpoint</label>
-        <input class="input-field" type="text" id="endpoint-url" value="" placeholder="http://…/proxy.php" />
-        <select class="format-select" id="response-format">
+        <input class="input-field" type="text" id="endpoint-url"
+              value=""
+              placeholder="auto-detected" />
+          <select class="format-select" id="response-format">
           <option value="application/sparql-results+json">JSON</option>
           <option value="application/sparql-results+xml">XML</option>
         </select>

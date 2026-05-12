@@ -3,9 +3,11 @@ services:
     build: .
     container_name: tripleview-studio
     ports:
-      - "8080:80"
+      - "8049:80"
     volumes:
       - .:/var/www/html
+    environment:
+      - SPARQL_ENDPOINT=http://192.168.6.123:8890/sparql/
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
