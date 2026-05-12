@@ -1,4 +1,3 @@
-/* ── DARK THEME (default) ────────────────────────────────── */
 :root {
   --bg-base: #0d0f14;
   --bg-panel: #13151c;
@@ -21,19 +20,16 @@
   --purple: #b48ef5;
   --cyan: #56d9e8;
 
-  /* syntax */
   --syn-keyword: #c792ea;
   --syn-var: #80cbc4;
   --syn-string: #c3e88d;
   --syn-comment: #546e7a;
   --syn-op: #89ddff;
 
-  /* theme toggle icon */
   --theme-icon-moon: block;
   --theme-icon-sun: none;
 }
 
-/* ── LIGHT THEME ─────────────────────────────────────────── */
 [data-theme="light"] {
   --bg-base: #f0f2f7;
   --bg-panel: #ffffff;
@@ -86,7 +82,6 @@ body {
   transition: background 0.25s, color 0.25s;
 }
 
-/* ── HEADER ─────────────────────────────────────────────── */
 header {
   display: flex;
   align-items: center;
@@ -137,7 +132,6 @@ header h1 {
   gap: 8px;
 }
 
-/* ── THEME TOGGLE ────────────────────────────────────────── */
 .theme-toggle {
   width: 34px;
   height: 34px;
@@ -196,7 +190,6 @@ header h1 {
   background: var(--red);
 }
 
-/* ── MAIN LAYOUT ─────────────────────────────────────────── */
 main {
   flex: 1;
   display: flex;
@@ -208,7 +201,6 @@ main {
   margin: 0 auto;
 }
 
-/* ── EDITOR PANEL ────────────────────────────────────────── */
 .editor-panel {
   background: var(--bg-panel);
   border: 1px solid var(--border);
@@ -318,7 +310,6 @@ main {
   to { transform: rotate(360deg); }
 }
 
-/* ── CODE EDITOR WRAPPER ─────────────────────────────────── */
 .editor-wrapper {
   position: relative;
   display: flex;
@@ -402,7 +393,6 @@ kbd {
   color: var(--text-secondary);
 }
 
-/* ── ENDPOINT CONFIG ─────────────────────────────────────── */
 .config-row {
   display: flex;
   gap: 10px;
@@ -453,7 +443,6 @@ kbd {
   border-color: var(--accent);
 }
 
-/* ── RESULTS PANEL ───────────────────────────────────────── */
 .results-panel {
   background: var(--bg-panel);
   border: 1px solid var(--border);
@@ -528,7 +517,6 @@ kbd {
   color: var(--green);
 }
 
-/* ── TABLE ───────────────────────────────────────────────── */
 .table-wrap {
   overflow: auto;
   max-height: 480px;
@@ -597,7 +585,6 @@ tbody td:first-child {
 .cell-bnode  { color: var(--purple); }
 .cell-null   { color: var(--text-muted); font-style: italic; }
 
-/* ── EMPTY / ERROR STATES ────────────────────────────────── */
 .state-box {
   padding: 48px 24px;
   text-align: center;
@@ -634,7 +621,6 @@ tbody td:first-child {
   font-family: "JetBrains Mono", monospace;
 }
 
-/* ── LOADING OVERLAY ─────────────────────────────────────── */
 .loading-state {
   padding: 48px 24px;
   text-align: center;
@@ -660,7 +646,6 @@ tbody td:first-child {
   letter-spacing: 0.05em;
 }
 
-/* ── NOTIFICATION ────────────────────────────────────────── */
 .notification {
   position: fixed;
   bottom: 24px;
@@ -695,13 +680,11 @@ tbody td:first-child {
   flex-shrink: 0;
 }
 
-/* ── SCROLLBAR ───────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-accent); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-/* ── FOOTER ──────────────────────────────────────────────── */
 footer {
   background: var(--bg-panel);
   border-top: 1px solid var(--border);
@@ -736,7 +719,6 @@ footer {
 }
 .footer-logo:hover { opacity: 1; }
 
-/* Subtle divider between logos and text */
 .footer-logos::after {
   content: '';
   display: block;
@@ -775,7 +757,6 @@ footer {
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* ── RESPONSIVE ──────────────────────────────────────────── */
 @media (max-width: 640px) {
   main { padding: 1rem; gap: 1rem; }
   header { padding: 0 1rem; }
@@ -793,10 +774,8 @@ footer {
   footer { padding: 1.5rem 1rem; }
 }
 
-/* ── EXAMPLES DROPDOWN ───────────────────────────────────── */
-/* ── EXAMPLES DROPDOWN ───────────────────────────────────── */
 .examples-wrap {
-  position: static;  /* anchor is the editor-actions bar, not this div */
+  position: static;
 }
 
 .btn-examples {
@@ -812,10 +791,9 @@ footer {
   transform: rotate(180deg);
 }
 
-/* Dropdown — anchored to the editor panel, full width on medium screens */
 .examples-dropdown {
   display: none;
-  position: fixed;           /* fixed so it can escape panel overflow:hidden */
+  position: fixed;
   width: min(820px, 90vw);
   background: var(--bg-panel);
   border: 1px solid var(--border-accent);
@@ -823,14 +801,13 @@ footer {
   box-shadow: 0 24px 64px rgba(0,0,0,0.55);
   z-index: 500;
   overflow: hidden;
-  flex-direction: column;    /* vertical: search bar on top, then two-pane body */
+  flex-direction: column;
   max-height: min(520px, 80vh);
 }
 .examples-dropdown.open {
   display: flex;
 }
 
-/* ── Search bar (full width, always visible at top) */
 .dropdown-search-wrap {
   display: flex;
   align-items: center;
@@ -871,7 +848,6 @@ footer {
 .dropdown-search-clear:hover { color: var(--text-primary); }
 .dropdown-search-clear.visible { display: flex; }
 
-/* ── Two-pane body below search */
 .dropdown-body {
   display: flex;
   flex: 1;
@@ -879,7 +855,6 @@ footer {
   overflow: hidden;
 }
 
-/* ── List column */
 .dropdown-list {
   width: 260px;
   flex-shrink: 0;
@@ -1021,15 +996,12 @@ footer {
   min-height: 0;
 }
 
-/* keyword colouring inside preview */
 .kw  { color: var(--syn-keyword); }
 .var { color: var(--syn-var); }
 .str { color: var(--syn-string); }
 .cmt { color: var(--syn-comment); }
 
-/* ── Responsive breakpoints ─────────────────────────────── */
 
-/* Medium: hide preview, list takes full width */
 @media (max-width: 860px) {
   .examples-dropdown {
     width: min(480px, 92vw);
@@ -1059,7 +1031,6 @@ footer {
   .dropdown-list { padding: 4px 0; }
 }
 
-/* ── GRAPH PANEL ─────────────────────────────────────────── */
 .graph-panel {
   background: var(--bg-panel);
   border: 1px solid var(--border);
@@ -1154,7 +1125,6 @@ footer {
 }
 #graph-svg:active { cursor: grabbing; }
 
-/* SVG elements */
 .graph-link {
   stroke: var(--border-accent);
   stroke-opacity: 0.7;
@@ -1196,7 +1166,6 @@ footer {
   dominant-baseline: central;
 }
 
-/* Tooltip */
 .graph-tooltip {
   position: absolute;
   background: var(--bg-surface);
@@ -1227,7 +1196,6 @@ footer {
 .tooltip-type.literal { color: var(--syn-string); }
 .tooltip-type.bnode   { color: var(--purple); }
 
-/* Info sidebar */
 .graph-info {
   position: absolute;
   top: 12px;
@@ -1312,7 +1280,6 @@ footer {
 }
 .info-conn-pred { color: var(--amber); }
 
-/* Graph footer */
 .graph-footer {
   display: flex;
   align-items: center;
@@ -1353,7 +1320,6 @@ footer {
   .graph-physics-row { display: none; }
 }
 
-/* ── VQB TOGGLE BUTTON ───────────────────────────────────── */
 .btn-vqb-toggle {
   display: flex;
   align-items: center;
@@ -1382,7 +1348,6 @@ footer {
 }
 .btn-vqb-toggle svg { flex-shrink: 0; }
 
-/* VQB panel slide-in animation */
 .vqb-panel {
   animation: vqbSlideDown 0.22s ease;
 }
