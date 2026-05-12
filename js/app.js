@@ -1,3 +1,4 @@
+// ── SHARED PREFIX BLOCK ──────────────────────────────────────
 const PFX = `PREFIX action:   <https://ontology.unifiedcyberontology.org/uco/action/>
 PREFIX analysis: <https://ontology.unifiedcyberontology.org/uco/analysis/>
 PREFIX core:     <https://ontology.unifiedcyberontology.org/uco/core/>
@@ -8,7 +9,7 @@ PREFIX tool:     <https://ontology.unifiedcyberontology.org/uco/tool/>
 PREFIX ex:       <http://example.org/stix-uco/>
 PREFIX xsd:      <http://www.w3.org/2001/XMLSchema#>`;
 
-// EXAMPLES DATA 
+// ── EXAMPLES DATA ────────────────────────────────────────────
 const EXAMPLES = [
   {
     group: 'Graph Exploration',
@@ -727,6 +728,7 @@ FROM <http://example.org/graph/mitre>
   }
 ];
 
+// ── THEME ─────────────────────────────────────────────────────
 const themeToggleBtn = document.getElementById('theme-toggle');
 const ihuLogo        = document.getElementById('ihu-logo');
 
@@ -742,10 +744,11 @@ themeToggleBtn.addEventListener('click', () => {
 });
 applyTheme(localStorage.getItem('sparql-theme') || 'dark');
 
+// ── STATE ─────────────────────────────────────────────────────
 let lastResults = null;
 let lastVars    = [];
 
-// ELEMENTS 
+// ── ELEMENTS ──────────────────────────────────────────────────
 const editor          = document.getElementById('query-editor');
 const lineNumbers     = document.getElementById('line-numbers');
 const editorStatus    = document.getElementById('editor-status');
@@ -773,6 +776,7 @@ const previewCode     = document.getElementById('preview-code');
 const previewTitle    = document.getElementById('preview-title');
 const previewUseBtn   = document.getElementById('preview-use-btn');
 
+// ── EXAMPLES DROPDOWN ─────────────────────────────────────────
 let activeExample = null;
 
 function tagClass(tag) {
@@ -889,6 +893,7 @@ setTimeout(() => {
   if (first) first.dispatchEvent(new MouseEvent('mouseenter'));
 }, 0);
 
+// ── LINE NUMBERS ──────────────────────────────────────────────
 function updateLineNumbers() {
   const lines = editor.value.split('\n').length;
   lineNumbers.textContent = Array.from({length: lines}, (_, i) => i + 1).join('\n');
@@ -919,6 +924,7 @@ endpointUrl.addEventListener('input', () => {
   catch { endpointDisp.textContent = endpointUrl.value; }
 });
 
+// ── BUTTONS ───────────────────────────────────────────────────
 btnRun.addEventListener('click', runQuery);
 btnClear.addEventListener('click', () => { editor.value=''; updateLineNumbers(); updateStatus(); hideResults(); });
 btnFormat.addEventListener('click', () => {
@@ -930,6 +936,7 @@ btnFormat.addEventListener('click', () => {
 });
 btnExport.addEventListener('click', exportCSV);
 
+// ── RUN QUERY ─────────────────────────────────────────────────
 async function runQuery() {
   const query = editor.value.trim();
   if (!query) { showNotification('Query is empty.','error'); return; }
@@ -954,6 +961,7 @@ async function runQuery() {
   } finally { setLoading(false); }
 }
 
+// ── RENDER TABLE ──────────────────────────────────────────────
 function renderResults(data) {
   if (data.boolean !== undefined) {
     lastResults = null; lastVars = [];
@@ -1024,6 +1032,7 @@ function renderResults(data) {
   buildGraph(vars, rows);
 }
 
+// ── HELPERS ───────────────────────────────────────────────────
 function makeStateBox(type, title, desc, svgInner) {
   const box=document.createElement('div'); box.className='state-box';
   const ico=document.createElement('div'); ico.className=`state-icon ${type}`;
@@ -1088,6 +1097,10 @@ function exportCSV() {
   a.href=URL.createObjectURL(new Blob([[lastVars.join(','),...rows].join('\n')],{type:'text/csv'}));
   a.download='sparql-results.csv'; a.click();
 }
+
+// ═══════════════════════════════════════════════════════════════
+// ── D3 GRAPH ENGINE ───────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
 
 const graphPanel     = document.getElementById('graph-panel');
 const graphSvg       = document.getElementById('graph-svg');
@@ -1296,8 +1309,24 @@ function hideGraph(){
   if(simulation){simulation.stop();simulation=null;}
 }
 
+// ── INIT ──────────────────────────────────────────────────────
 updateLineNumbers();
 updateStatus();
+
+// VQB toggle button
+const btnVqbToggle = document.getElementById('btn-vqb-toggle');
+const vqbPanel     = document.getElementById('vqb-panel');
+if (btnVqbToggle && vqbPanel) {
+  btnVqbToggle.addEventListener('click', () => {
+    const isOpen = vqbPanel.style.display !== 'none';
+    vqbPanel.style.display = isOpen ? 'none' : 'flex';
+    btnVqbToggle.classList.toggle('active', !isOpen);
+    // Scroll into view when opening
+    if (!isOpen) {
+      vqbPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+}
 
 const copyEl = document.querySelector('.footer-copy');
 if (copyEl) copyEl.innerHTML = `&copy; ${new Date().getFullYear()} TripleView Studio, developed by International Hellenic University`;
