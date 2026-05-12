@@ -792,6 +792,12 @@ function highlightQuery(query) {
   return h;
 }
 
+const endpointInput = document.getElementById('endpoint-url');
+if (endpointInput && !endpointInput.value) {
+  endpointInput.value = window.location.origin + '/TripleViewStudio/proxy.php';
+  endpointDisp.textContent = window.location.host + '/TripleViewStudio/proxy.php';
+}
+
 function renderExamplesList(filter = '') {
   examplesList.innerHTML = '';
   const q = filter.toLowerCase();
