@@ -1322,4 +1322,4 @@ if (btnVqbToggle && vqbPanel) {
 }
 
 const copyEl = document.querySelector('.footer-copy');
-if (copyEl) copyEl.innerHTML = `&copy; ${new Date().getFullYear()} TripleView Studio, developed by International Hellenic University`;
+if (copyEl) copyEl.innerHTML = `&copy; ${new Date().getFullYear()} Cyber knowledge Graph, developed by International Hellenic University`;
